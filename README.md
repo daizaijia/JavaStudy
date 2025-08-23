@@ -515,3 +515,54 @@ public class Main {
     }
 }
 ```
+**JavaSE多线程编程练习：生产者消费者**
+```
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    private static final Queue<Object> queue = new LinkedList<>();
+
+    public static void main(String[] args) {
+        new Thread(Main::productor,"厨师1").start();
+        new Thread(Main::productor,"厨师2").start();
+
+        new Thread(Main::consumtor,"顾客1").start();
+        new Thread(Main::consumtor,"顾客2").start();
+        new Thread(Main::consumtor,"顾客3").start();
+    }
+
+    private static void productor() {
+        try {
+            while (true){
+                Thread.sleep(3000);
+                String name = Thread.currentThread().getName();
+                System.out.println(new Date() + name + " " + "出餐了！");
+                synchronized (queue) {
+                    queue.offer(new Object());
+                    queue.notifyAll();
+                }
+            }
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void consumtor() {
+        while (true){
+            try {
+                synchronized (queue) {
+                    while (queue.isEmpty()) queue.wait();
+                    queue.poll();
+                }
+                String name = Thread.currentThread().getName();
+                System.out.println(new Date() + name + " " + "正在享用！");
+                Thread.sleep(4000);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
